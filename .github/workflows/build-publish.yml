@@ -17,8 +17,8 @@ jobs:
         java-version: 1.8
     - name: Build & test with Maven
       run: mvn clean install -P integration-tests
-    - name: Make dist with Maven
-      run: mvn install -P dist
+#    - name: Make dist with Maven
+#      run: mvn install -P dist
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
