@@ -14,17 +14,17 @@
  */
 package com.amazon.janusgraph.diskstorage.dynamodb;
 
-import org.junit.experimental.categories.Category;
-
 import com.amazon.janusgraph.testcategory.SingleDynamoDBMultiWriteStoreTestCategory;
 import com.amazon.janusgraph.testcategory.SingleItemTestCategory;
+import org.junit.jupiter.api.Tag;
 
 /**
 *
 * @author Alexander Patrikalakis
 *
 */
-@Category({ SingleDynamoDBMultiWriteStoreTestCategory.class, SingleItemTestCategory.class })
+@Tag("SingleDynamoDBMultiWriteStoreTestCategory.class")
+@Tag("SingleItemTestCategory.class")
 public class SingleDynamoDBMultiWriteStoreTest extends AbstractDynamoDBMultiWriteStoreTest {
 
     public SingleDynamoDBMultiWriteStoreTest() {

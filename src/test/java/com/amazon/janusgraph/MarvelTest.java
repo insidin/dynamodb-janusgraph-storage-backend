@@ -14,8 +14,10 @@
  */
 package com.amazon.janusgraph;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static com.amazon.janusgraph.graphdb.dynamodb.TestCombination.MULTIPLE_ITEM_DYNAMODB_LOCKING;
+import static com.amazon.janusgraph.graphdb.dynamodb.TestCombination.SINGLE_ITEM_DYNAMODB_LOCKING;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -27,12 +29,7 @@ import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.janusgraph.core.JanusGraph;
 import org.janusgraph.core.JanusGraphVertex;
 import org.janusgraph.diskstorage.BackendException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.*;
 
 import com.amazon.janusgraph.diskstorage.dynamodb.BackendDataModel;
 import com.amazon.janusgraph.example.MarvelGraphFactory;
@@ -46,31 +43,33 @@ import com.google.common.base.Preconditions;
  * @author Matthew Sowders
  * @author Alexander Patrikalakis
  */
-@Category({IsolateRemainingTestsCategory.class})
-@RunWith(Parameterized.class)
-public class MarvelTest {
+@Tag("IsolateRemainingTestsCategory.class")
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+public abstract class MarvelTest {
 
     private JanusGraph graph;
+    BackendDataModel model;
 
-    @Before
+/*
+    //TODO
+    //@Parameterized.Parameters//(name = "{0}")
+    public static Collection<Object[]> data() {
+        return TestCombination.NATIVE_LOCKING_CROSS_MODELS;
+    }
+*/
+    public MarvelTest(final TestCombination combination) throws Exception {
+        model = combination.getDataModel();
+    }
+
+    @BeforeAll
     public void setUpGraph() throws Exception {
         graph = TestGraphUtil.instance.openGraph(model);
         MarvelTest.loadData(graph, 100 /* Number of lines to read from marvel.csv */);
     }
 
-    @After
+    @AfterAll
     public void tearDownGraph() throws BackendException {
         TestGraphUtil.instance.tearDownGraph(graph);
-    }
-
-    //TODO
-    @Parameterized.Parameters//(name = "{0}")
-    public static Collection<Object[]> data() {
-        return TestCombination.NATIVE_LOCKING_CROSS_MODELS;
-    }
-    BackendDataModel model;
-    public MarvelTest(final TestCombination combination) throws Exception {
-        model = combination.getDataModel();
     }
 
     protected static void loadData(final JanusGraph graph, final int numLines) throws Exception {
@@ -85,10 +84,10 @@ public class MarvelTest {
     public void characterQuery() {
         final GraphTraversalSource g = graph.traversal();
         final Iterator<Vertex> it = g.V().has(MarvelGraphFactory.CHARACTER, "CAPTAIN AMERICA");
-        assertTrue("Query should return a result", it.hasNext());
+        assertTrue(it.hasNext(), "Query should return a result");
         final Vertex captainAmerica = it.next();
-        assertNotNull("Query result should be non null", captainAmerica);
-        assertNotNull("The properties should not be null", captainAmerica.property(MarvelGraphFactory.WEAPON));
+        assertNotNull(captainAmerica, "Query result should be non null");
+        assertNotNull(captainAmerica.property(MarvelGraphFactory.WEAPON), "The properties should not be null");
     }
 
     @Test
@@ -111,6 +110,20 @@ public class MarvelTest {
                 edgeCount++;
             }
             registry.histogram("MarvelTest.testQuery.histogram.appeared." + type + ".degree").update(edgeCount);
+        }
+    }
+
+    public static class SingleLockingMarvelTest extends MarvelTest {
+
+        public SingleLockingMarvelTest() throws Exception {
+            super(SINGLE_ITEM_DYNAMODB_LOCKING);
+        }
+    }
+
+    public static class MultiLockingMarvelTest extends MarvelTest {
+
+        public MultiLockingMarvelTest() throws Exception {
+            super(MULTIPLE_ITEM_DYNAMODB_LOCKING);
         }
     }
 

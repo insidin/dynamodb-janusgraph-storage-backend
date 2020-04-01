@@ -14,17 +14,16 @@
  */
 package com.amazon.janusgraph.graphdb.dynamodb;
 
-import org.junit.experimental.categories.Category;
-
 import com.amazon.janusgraph.diskstorage.dynamodb.BackendDataModel;
 import com.amazon.janusgraph.testcategory.SingleItemTestCategory;
+import org.junit.jupiter.api.Tag;
 
 /**
 *
 * @author Alexander Patrikalakis
 *
 */
-@Category({ SingleItemTestCategory.class })
+@Tag("SingleItemTestCategory.class")
 public class SingleDynamoDBOperationCountingTest extends AbstractDynamoDBOperationCountingTest {
 
     public SingleDynamoDBOperationCountingTest() {

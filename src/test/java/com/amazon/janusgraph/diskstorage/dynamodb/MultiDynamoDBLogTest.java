@@ -14,12 +14,10 @@
  */
 package com.amazon.janusgraph.diskstorage.dynamodb;
 
-
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
-
 import com.amazon.janusgraph.testcategory.MultiIdAuthorityLogStoreCategory;
 import com.amazon.janusgraph.testcategory.MultipleItemTestCategory;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 /**
  *
@@ -27,7 +25,8 @@ import com.amazon.janusgraph.testcategory.MultipleItemTestCategory;
  * @author Johan Jacobs
  *
 */
-@Category({ MultiIdAuthorityLogStoreCategory.class, MultipleItemTestCategory.class })
+@Tag("MultiIdAuthorityLogStoreCategory.class")
+@Tag("MultipleItemTestCategory.class")
 public class MultiDynamoDBLogTest extends AbstractDynamoDBLogTest {
     public MultiDynamoDBLogTest() throws Exception {
         super(BackendDataModel.MULTI);
@@ -37,8 +36,9 @@ public class MultiDynamoDBLogTest extends AbstractDynamoDBLogTest {
 
     @Override
     @Test
+    @Tag("requiresOrderPreserving")
     public void mediumSendReceiveSerial() throws Exception {
-        simpleSendReceive(2000,50, LONGER_TIMEOUT_MS);
+        sendReceive(1, 2000, 50, true, LONGER_TIMEOUT_MS);
     }
     @Override
     @Test
@@ -47,6 +47,7 @@ public class MultiDynamoDBLogTest extends AbstractDynamoDBLogTest {
     }
     @Override
     @Test
+    @Tag("requiresOrderPreserving")
     public void testMultipleReadersOnSingleLogSerial() throws Exception {
         sendReceive(4, 2000, 50, true, LONGER_TIMEOUT_MS);
     }

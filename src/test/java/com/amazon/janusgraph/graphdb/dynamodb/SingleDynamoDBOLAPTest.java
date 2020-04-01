@@ -15,18 +15,19 @@
 package com.amazon.janusgraph.graphdb.dynamodb;
 
 import org.janusgraph.diskstorage.BackendException;
-import org.junit.experimental.categories.Category;
 
 import com.amazon.janusgraph.diskstorage.dynamodb.BackendDataModel;
 import com.amazon.janusgraph.testcategory.SingleDynamoDBOLAPTestCategory;
 import com.amazon.janusgraph.testcategory.SingleItemTestCategory;
+import org.junit.jupiter.api.Tag;
 
 /**
 *
 * @author Alexander Patrikalakis
 *
 */
-@Category({ SingleDynamoDBOLAPTestCategory.class, SingleItemTestCategory.class})
+@Tag("SingleDynamoDBOLAPTestCategory.class")
+@Tag("SingleItemTestCategory.class")
 public class SingleDynamoDBOLAPTest extends AbstractDynamoDBOLAPTest {
 
     public SingleDynamoDBOLAPTest() throws BackendException {

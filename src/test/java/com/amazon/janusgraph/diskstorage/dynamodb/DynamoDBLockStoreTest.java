@@ -14,7 +14,6 @@
  */
 package com.amazon.janusgraph.diskstorage.dynamodb;
 
-import java.util.Collection;
 import java.util.List;
 
 import org.janusgraph.diskstorage.BackendException;
@@ -24,14 +23,7 @@ import org.janusgraph.diskstorage.configuration.Configuration;
 import org.janusgraph.diskstorage.configuration.MergedConfiguration;
 import org.janusgraph.diskstorage.configuration.ModifiableConfiguration;
 import org.janusgraph.graphdb.configuration.GraphDatabaseConfiguration;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
-import org.junit.rules.TestName;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.*;
 
 import com.amazon.janusgraph.TestGraphUtil;
 import com.amazon.janusgraph.graphdb.dynamodb.TestCombination;
@@ -39,30 +31,24 @@ import com.amazon.janusgraph.testcategory.IsolateRemainingTestsCategory;
 import com.amazon.janusgraph.testutils.CiHeartbeat;
 import com.google.common.collect.ImmutableList;
 
+import static com.amazon.janusgraph.graphdb.dynamodb.TestCombination.*;
+
 /**
  *
  * @author Alexander Patrikalakis
  * @author Johan Jacobs
  *
  */
-@Category({IsolateRemainingTestsCategory.class})
-@RunWith(Parameterized.class)
-public class DynamoDBLockStoreTest extends LockKeyColumnValueStoreTest {
-
-    @Rule
-    public final TestName testName = new TestName();
+@Tag("IsolateRemainingTestsCategory.class")
+public abstract class DynamoDBLockStoreTest extends LockKeyColumnValueStoreTest {
 
     private final CiHeartbeat ciHeartbeat;
-
-    //TODO
-    @Parameterized.Parameters//(name = "{0}")
-    public static Collection<Object[]> data() {
-        return TestCombination.LOCKING_CROSS_MODELS;
-    }
     private final TestCombination combination;
-    public DynamoDBLockStoreTest(final TestCombination combination) {
+    private TestInfo testInfo;
+
+    public DynamoDBLockStoreTest(TestCombination combination) {
         this.ciHeartbeat = new CiHeartbeat();
-        this.combination = combination;
+        this.combination = SINGLE_ITEM_DYNAMODB_LOCKING;
     }
 
     @Override
@@ -85,20 +71,32 @@ public class DynamoDBLockStoreTest extends LockKeyColumnValueStoreTest {
         return new DynamoDBStoreManager(new MergedConfiguration(dynamodbOverrides, configuration));
     }
 
-    @Before
-    public void setUpTest() throws Exception {
-        this.ciHeartbeat.startHeartbeat(this.testName.getMethodName());
+    @BeforeEach
+    public void setUpTest(TestInfo testInfo) throws Exception {
+        this.testInfo = testInfo;
+        this.ciHeartbeat.startHeartbeat(testInfo.getTestMethod().get().getName());
         // https://github.com/awslabs/dynamodb-titan-storage-backend/issues/160
         // super.open() is called here, and super.open() calls super.openStoreManager(int)
         super.setUp();
     }
 
-    @After
-    public void tearDownTest() throws Exception {
-        super.tearDown();
-        TestGraphUtil.instance.cleanUpTables();
-        this.ciHeartbeat.stopHeartbeat();
+    @Override
+    public void setUp() {
+        // deliberately override with noop to avoid execution of @BeforeEach login of parent class
     }
+
+
+    @AfterEach
+    public void tearDownTest() throws Exception {
+        this.ciHeartbeat.stopHeartbeat();
+        super.tearDown();
+    }
+
+    @AfterAll
+    public static void deleteTables() throws BackendException {
+        TestGraphUtil.instance.cleanUpTables();
+    }
+
 
     @Override
     @Test
@@ -123,4 +121,33 @@ public class DynamoDBLockStoreTest extends LockKeyColumnValueStoreTest {
         }
         super.testRemoteLockContention();
     }
+
+    public static class SingleDynamodbDynamoDBLockStoreTest extends DynamoDBLockStoreTest {
+
+        public SingleDynamodbDynamoDBLockStoreTest() {
+            super(SINGLE_ITEM_DYNAMODB_LOCKING);
+        }
+    }
+
+    public static class SingleJanusgraphDynamoDBLockStoreTest extends DynamoDBLockStoreTest {
+
+        public SingleJanusgraphDynamoDBLockStoreTest() {
+            super(SINGLE_ITEM_JANUSGRAPH_LOCKING);
+        }
+    }
+
+    public static class MultiDynamodbDynamoDBLockStoreTest extends DynamoDBLockStoreTest {
+
+        public MultiDynamodbDynamoDBLockStoreTest() {
+            super(MULTIPLE_ITEM_DYNAMODB_LOCKING);
+        }
+    }
+
+    public static class MultiJanusgraphDynamoDBLockStoreTest extends DynamoDBLockStoreTest {
+
+        public MultiJanusgraphDynamoDBLockStoreTest() {
+            super(MULTIPLE_ITEM_JANUSGRAPH_LOCKING);
+        }
+    }
+
 }

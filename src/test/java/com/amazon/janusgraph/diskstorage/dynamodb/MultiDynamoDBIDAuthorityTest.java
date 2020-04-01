@@ -15,22 +15,23 @@
 package com.amazon.janusgraph.diskstorage.dynamodb;
 
 import org.janusgraph.diskstorage.configuration.WriteConfiguration;
-import org.junit.experimental.categories.Category;
 
 import com.amazon.janusgraph.testcategory.MultiIdAuthorityLogStoreCategory;
 import com.amazon.janusgraph.testcategory.MultipleItemTestCategory;
+import org.junit.jupiter.api.Tag;
 
 /**
 *
 * @author Alexander Patrikalakis
 *
 */
-@Category({ MultiIdAuthorityLogStoreCategory.class, MultipleItemTestCategory.class })
+@Tag("MultiIdAuthorityLogStoreCategory.class")
+@Tag("MultipleItemTestCategory.class")
 public class MultiDynamoDBIDAuthorityTest extends AbstractDynamoDBIDAuthorityTest {
 
     /*this test is Parametrized so the ctor takes an argument*/
-    public MultiDynamoDBIDAuthorityTest(final WriteConfiguration baseConfig) {
-        super(baseConfig, BackendDataModel.MULTI);
+    public MultiDynamoDBIDAuthorityTest(/*final WriteConfiguration baseConfig*/) {
+        super(/*baseConfig,*/ BackendDataModel.MULTI);
     }
 
 }

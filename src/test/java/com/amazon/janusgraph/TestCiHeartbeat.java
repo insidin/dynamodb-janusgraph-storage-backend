@@ -15,6 +15,8 @@
 
 package com.amazon.janusgraph;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -22,16 +24,12 @@ import org.apache.log4j.Appender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.spi.LoggingEvent;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestName;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.amazon.janusgraph.testutils.CiHeartbeat;
 
@@ -40,31 +38,29 @@ import com.amazon.janusgraph.testutils.CiHeartbeat;
  * @author Johan Jacobs
  *
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class TestCiHeartbeat {
-
-    @Rule
-    public final TestName testName = new TestName();
 
     @Mock
     private Appender mockAppender;
+
     @Captor
     private ArgumentCaptor<LoggingEvent> captorLoggingEvent;
 
-    @Before
+    @BeforeEach
     public void setup() {
-
         final Logger root = Logger.getRootLogger();
         root.addAppender(mockAppender);
         root.setLevel(Level.WARN);
     }
 
     @Test
-    public void testHeartbeatConsoleOutput() throws InterruptedException {
+    public void testHeartbeatConsoleOutput(TestInfo testInfo) throws InterruptedException {
 
         final CiHeartbeat ciHeartbeat = new CiHeartbeat(500, 3);
 
-        ciHeartbeat.startHeartbeat(testName.getMethodName());
+        ciHeartbeat.startHeartbeat(testInfo.getTestMethod().get().getName());
 
         Thread.sleep(2000);
 
@@ -73,21 +69,21 @@ public class TestCiHeartbeat {
         verify(mockAppender, times(6)).doAppend(captorLoggingEvent.capture());
 
         final LoggingEvent unitTestStartEvent = captorLoggingEvent.getAllValues().get(0);
-        Assert.assertEquals("Heartbeat - [started] - testHeartbeatConsoleOutput - 0ms", unitTestStartEvent.getMessage());
+        assertEquals("Heartbeat - [started] - testHeartbeatConsoleOutput - 0ms", unitTestStartEvent.getMessage());
 
         final LoggingEvent heartbeatOneEvent = captorLoggingEvent.getAllValues().get(1);
-        Assert.assertTrue(heartbeatOneEvent.getMessage().toString().contains("Heartbeat - [1] - testHeartbeatConsoleOutput - "));
+        assertTrue(heartbeatOneEvent.getMessage().toString().contains("Heartbeat - [1] - testHeartbeatConsoleOutput - "));
 
         final LoggingEvent heartbeatTwoEvent = captorLoggingEvent.getAllValues().get(2);
-        Assert.assertTrue(heartbeatTwoEvent.getMessage().toString().contains("Heartbeat - [2] - testHeartbeatConsoleOutput - "));
+        assertTrue(heartbeatTwoEvent.getMessage().toString().contains("Heartbeat - [2] - testHeartbeatConsoleOutput - "));
 
         final LoggingEvent heartbeatThreeEvent = captorLoggingEvent.getAllValues().get(3);
-        Assert.assertTrue(heartbeatThreeEvent.getMessage().toString().contains("Heartbeat - [3] - testHeartbeatConsoleOutput - "));
+        assertTrue(heartbeatThreeEvent.getMessage().toString().contains("Heartbeat - [3] - testHeartbeatConsoleOutput - "));
 
         final LoggingEvent heartbeatfourEvent = captorLoggingEvent.getAllValues().get(4);
-        Assert.assertTrue(heartbeatfourEvent.getMessage().toString().contains("Heartbeat - [4] - testHeartbeatConsoleOutput - "));
+        assertTrue(heartbeatfourEvent.getMessage().toString().contains("Heartbeat - [4] - testHeartbeatConsoleOutput - "));
 
         final LoggingEvent unitTestEndEvent = captorLoggingEvent.getAllValues().get(5);
-        Assert.assertTrue(unitTestEndEvent.getMessage().toString().contains("Heartbeat - [finished] - testHeartbeatConsoleOutput - "));
+        assertTrue(unitTestEndEvent.getMessage().toString().contains("Heartbeat - [finished] - testHeartbeatConsoleOutput - "));
     }
 }

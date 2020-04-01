@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.amazonaws</groupId>
     <artifactId>dynamodb-janusgraph-storage-backend</artifactId>
-    <version>1.2.0</version>
+    <version>2.0.0</version>
     <packaging>jar</packaging>
     <name>Amazon DynamoDB Storage Backend for JanusGraph</name>
     <url>https://github.com/awslabs/dynamodb-janusgraph-storage-backend</url>
@@ -18,33 +18,37 @@
         <dynamodb-local.port>4567</dynamodb-local.port>
         <dynamodb-local.endpoint>http://localhost:${dynamodb-local.port}</dynamodb-local.endpoint>
         <jdk.version>1.8</jdk.version>
-        <aws.java.sdk.version>1.11.336</aws.java.sdk.version>
-        <jackson.version>2.10.2</jackson.version>
-        <janusgraph.version>0.2.0</janusgraph.version>
-        <tinkerpop.version>3.2.6</tinkerpop.version>
-        <dependency.plugin.version>3.0.2</dependency.plugin.version>
+        <aws.java.sdk.version>1.11.779</aws.java.sdk.version>
+        <jackson.version>2.11.0</jackson.version>
+        <janusgraph.version>0.5.1</janusgraph.version>
+        <tinkerpop.version>3.4.6</tinkerpop.version>
+        <maven.dependency.plugin.version>3.1.2</maven.dependency.plugin.version>
         <maven.assembly.plugin.version>3.1.0</maven.assembly.plugin.version>
         <maven.compiler.plugin.version>3.6.2</maven.compiler.plugin.version>
-        <maven.surefire.version>2.20</maven.surefire.version>
-        <maven.failsafe.version>2.20</maven.failsafe.version>
+        <maven.surefire.version>2.22.2</maven.surefire.version>
+        <maven.failsafe.version>2.22.2</maven.failsafe.version>
         <maven.resources.plugin.version>3.0.2</maven.resources.plugin.version>
         <exec.maven.plugin.version>1.6.0</exec.maven.plugin.version>
         <download.maven.plugin.version>1.2.1</download.maven.plugin.version>
-        <slf4j.version>1.7.12</slf4j.version>
+        <slf4j.version>1.7.30</slf4j.version>
         <opencsv.version>3.8</opencsv.version>
-        <metrics3.version>3.0.1</metrics3.version>
+        <metrics3.version>3.2.2</metrics3.version>
         <commons.logging.version>1.1.1</commons.logging.version>
         <hadoop.version>2.2.0</hadoop.version>
-        <mockito.version>1.8.5</mockito.version>
+        <mockito.version>3.3.3</mockito.version>
         <lombok.version>1.16.18</lombok.version>
         <docker.maven.version>0.4.13</docker.maven.version>
         <commonsio.version>2.3</commonsio.version>
         <guava.version>18.0</guava.version>
+        <junit.jupiter.version>5.5.2</junit.jupiter.version>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven-enforcer-plugin.version>3.0.0-M1</maven-enforcer-plugin.version>
+        <maven-assembly-plugin.version>3.3.0</maven-assembly-plugin.version>
         <include.category></include.category>
         <exclude.category></exclude.category>
-        <test.excluded.groups>org.janusgraph.testcategory.MemoryTests,org.janusgraph.testcategory.PerformanceTests,org.janusgraph.testcategory.BrittleTests,org.janusgraph.testcategory.OrderedKeyStoreTests,org.janusgraph.testcategory.SerialTests</test.excluded.groups>
+        <test.excluded.groups></test.excluded.groups>
+        <!--test.excluded.groups>MEMORY_TESTS,PERFORMANCE_TESTS,BRITTLE_TESTS,SERIAL_TESTS</test.excluded.groups-->
+        <!--test.excluded.groups>org.janusgraph.testcategory.MemoryTests,org.janusgraph.testcategory.PerformanceTests,org.janusgraph.testcategory.BrittleTests,org.janusgraph.testcategory.OrderedKeyStoreTests,org.janusgraph.testcategory.SerialTests</test.excluded.groups-->
 	<download.skip.cache>false</download.skip.cache>
 	<download.force.overwrite>false</download.force.overwrite>
         <junit.version>4.12</junit.version>
@@ -110,22 +114,46 @@
             <groupId>org.janusgraph</groupId>
             <artifactId>janusgraph-core</artifactId>
             <version>${janusgraph.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.janusgraph</groupId>
-            <artifactId>janusgraph-test</artifactId>
+            <artifactId>janusgraph-backend-testutils</artifactId>
             <version>${janusgraph.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.codahale.metrics</groupId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.boundary</groupId>
+            <artifactId>high-scale-lib</artifactId>
+            <version>1.0.6</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.dropwizard.metrics</groupId>
             <artifactId>metrics-core</artifactId>
             <version>${metrics3.version}</version>
+            <scope>provided</scope>
         </dependency>
+
         <dependency>
             <groupId>com.opencsv</groupId>
             <artifactId>opencsv</artifactId>
             <version>${opencsv.version}</version>
+            <scope>provided</scope>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.commons</groupId>
@@ -144,24 +172,22 @@
             <groupId>org.apache.tinkerpop</groupId>
             <artifactId>gremlin-core</artifactId>
             <version>${tinkerpop.version}</version>
+            <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
-        </dependency>
+
         <!-- for Gremlin console -->
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
-            <version>1.7</version>
         </dependency>
+
         <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
             <version>2.6</version>
+            <scope>provided</scope>
         </dependency>
+
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-core</artifactId>
@@ -178,34 +204,27 @@
             <groupId>commons-configuration</groupId>
             <artifactId>commons-configuration</artifactId>
             <version>1.10</version>
-            <scope>runtime</scope>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.3.1</version>
+            <version>3.8.1</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>${slf4j.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>${guava.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <version>${mockito.version}</version>
-            <scope>test</scope>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>${mockito.version}</version>
-            <scope>test</scope>
             <exclusions>
                 <exclusion>
                     <groupId>org.hamcrest</groupId>
@@ -221,11 +240,14 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>${lombok.version}</version>
+            <scope>provided</scope>
         </dependency>
+
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>findbugs</artifactId>
             <version>3.0.1</version>
+            <scope>provided</scope>
             <exclusions>
                 <exclusion>
                     <groupId>com.google.code.findbugs</groupId>
@@ -234,85 +256,96 @@
             </exclusions>
         </dependency>
     </dependencies>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-core</artifactId>
                 <version>${jackson.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>${jackson.version}</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
                 <version>${jackson.version}</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.dataformat</groupId>
                 <artifactId>jackson-dataformat-cbor</artifactId>
                 <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>${junit.version}</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
                 <version>${commonsio.version}</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>commons-collections</groupId>
                 <artifactId>commons-collections</artifactId>
                 <version>3.2.2</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>commons-codec</groupId>
                 <artifactId>commons-codec</artifactId>
-                <version>1.7</version>
+                <version>1.14</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>commons-logging</groupId>
                 <artifactId>commons-logging</artifactId>
                 <version>1.1.3</version>
-            </dependency>
-            <dependency>
-                <groupId>com.codahale.metrics</groupId>
-                <artifactId>metrics-core</artifactId>
-                <version>${metrics3.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.codahale.metrics</groupId>
-                <artifactId>metrics-graphite</artifactId>
-                <version>${metrics3.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.codahale.metrics</groupId>
-                <artifactId>metrics-ganglia</artifactId>
-                <version>${metrics3.version}</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>${slf4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.guava</groupId>
-                <artifactId>guava</artifactId>
-                <version>${guava.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.carrotsearch</groupId>
-                <artifactId>junit-benchmarks</artifactId>
-                <version>0.7.0</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
                 <version>${mockito.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-junit-jupiter</artifactId>
+                <version>${mockito.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-api</artifactId>
+                <version>${junit.jupiter.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-engine</artifactId>
+                <version>${junit.jupiter.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-params</artifactId>
+                <version>${junit.jupiter.version}</version>
+                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
+
     <build>
         <plugins>
             <plugin>
@@ -368,7 +401,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <version>${dependency.plugin.version}</version>
+                <version>${maven.dependency.plugin.version}</version>
                 <executions>
                     <execution>
                         <id>analyze</id>
@@ -390,6 +423,8 @@
                             <goal>copy-dependencies</goal>
                         </goals>
                         <configuration>
+                            <includeScope>runtime</includeScope>
+                            <excludeScope>provided</excludeScope>
                             <outputDirectory>${project.build.directory}/dependencies</outputDirectory>
                             <overWriteReleases>false</overWriteReleases>
                             <overWriteSnapshots>false</overWriteSnapshots>
@@ -439,6 +474,14 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>${maven-assembly-plugin.version}</version>
+                <configuration>
+                    <skipAssembly>true</skipAssembly>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
     <profiles>
@@ -486,8 +529,8 @@
                                     <url>https://s3-us-west-2.amazonaws.com/dynamodb-local/dynamodb_local_latest.zip</url>
                                     <unpack>true</unpack>
                                     <outputDirectory>${project.build.directory}/dynamodb</outputDirectory>
-				    <skipCache>${download.skip.cache}</skipCache>
-				    <overwrite>${download.force.overwrite}</overwrite>
+				                    <skipCache>${download.skip.cache}</skipCache>
+				                    <overwrite>${download.force.overwrite}</overwrite>
                                 </configuration>
                             </execution>
                         </executions>
@@ -533,6 +576,13 @@
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <version>${maven.failsafe.version}</version>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.junit.jupiter</groupId>
+                                <artifactId>junit-jupiter-engine</artifactId>
+                                <version>${junit.jupiter.version}</version>
+                            </dependency>
+                        </dependencies>
                         <executions>
                             <execution>
                                 <id>default-integration-tests</id>
@@ -541,11 +591,18 @@
                                     <goal>verify</goal>
                                 </goals>
                                 <configuration>
+                                    <!--
                                     <excludedGroups>${test.excluded.groups},${exclude.category}</excludedGroups>
+                                    -->
                                     <includes>
                                         <include>${include.category}</include>
                                     </includes>
                                     <skip>false</skip>
+                                    <!--
+                                    <forkCount>1</forkCount>
+                                    <reuseForks>false</reuseForks>
+                                    <argLine>-Xms256m -Xmx1024m</argLine>
+                                    -->
                                     <systemPropertyVariables>
                                         <dynamodb-partitions>1</dynamodb-partitions>
                                         <dynamodb-control-plane-rate>10000</dynamodb-control-plane-rate>
@@ -605,8 +662,8 @@
                                     <url>https://s3-us-west-2.amazonaws.com/dynamodb-local/dynamodb_local_latest.zip</url>
                                     <unpack>true</unpack>
                                     <outputDirectory>${project.build.directory}/dynamodb</outputDirectory>
-				    <skipCache>${download.skip.cache}</skipCache>
-				    <overwrite>${download.force.overwrite}</overwrite>
+				                    <skipCache>${download.skip.cache}</skipCache>
+                                    <overwrite>${download.force.overwrite}</overwrite>
                                 </configuration>
                             </execution>
                         </executions>
@@ -640,5 +697,35 @@
                 </plugins>
             </build>
         </profile>
+        <profile>
+            <id>dist</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                                <phase>package</phase>
+                                <configuration>
+                                    <skipAssembly>false</skipAssembly>
+                                    <descriptors>
+                                        <descriptor>src/main/assembly/assembly.xml</descriptor>
+                                    </descriptors>
+                                    <!--finalName>dynamodb-janusgraph-storage-backend-${project.version}</finalName-->
+                                    <tarLongFileMode>gnu</tarLongFileMode>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
     </profiles>
 </project>

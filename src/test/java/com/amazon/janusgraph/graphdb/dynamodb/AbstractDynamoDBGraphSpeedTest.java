@@ -16,19 +16,23 @@ package com.amazon.janusgraph.graphdb.dynamodb;
 
 import org.janusgraph.core.JanusGraphFactory;
 import org.janusgraph.diskstorage.BackendException;
+import org.janusgraph.diskstorage.configuration.BasicConfiguration;
+import org.janusgraph.diskstorage.configuration.ModifiableConfiguration;
+import org.janusgraph.diskstorage.configuration.WriteConfiguration;
 import org.janusgraph.graphdb.JanusGraphSpeedTest;
 import org.janusgraph.graphdb.SpeedTestSchema;
 import org.janusgraph.graphdb.configuration.GraphDatabaseConfiguration;
+import org.janusgraph.graphdb.configuration.builder.GraphDatabaseConfigurationBuilder;
 import org.janusgraph.graphdb.database.StandardJanusGraph;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.rules.TestName;
 
 import com.amazon.janusgraph.TestGraphUtil;
 import com.amazon.janusgraph.diskstorage.dynamodb.BackendDataModel;
 import com.amazon.janusgraph.testutils.CiHeartbeat;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestInfo;
+//import org.junit.rules.TestName;
 
 /**
  *
@@ -37,8 +41,6 @@ import com.amazon.janusgraph.testutils.CiHeartbeat;
  *
  */
 public abstract class AbstractDynamoDBGraphSpeedTest extends JanusGraphSpeedTest {
-    @Rule
-    public final TestName testName = new TestName();
 
     private final CiHeartbeat ciHeartbeat;
     private static StandardJanusGraph graph;
@@ -51,7 +53,7 @@ public abstract class AbstractDynamoDBGraphSpeedTest extends JanusGraphSpeedTest
         this.ciHeartbeat = new CiHeartbeat();
     }
 
-    @AfterClass
+    @AfterAll
     public static void deleteTables() throws BackendException {
         TestGraphUtil.instance.cleanUpTables();
     }
@@ -59,9 +61,12 @@ public abstract class AbstractDynamoDBGraphSpeedTest extends JanusGraphSpeedTest
     @Override
     protected StandardJanusGraph getGraph() throws BackendException {
         if (null == graph) {
-            final GraphDatabaseConfiguration graphconfig = new GraphDatabaseConfiguration(conf);
-            graphconfig.getBackend().clearStorage();
-            graph = (StandardJanusGraph) JanusGraphFactory.open(conf);
+            //ModifiableConfiguration graphconfig = new ModifiableConfiguration(GraphDatabaseConfiguration.ROOT_NS, super.conf.copy(), BasicConfiguration.Restriction.NONE);
+            //final GraphDatabaseConfiguration graphconfig = new GraphDatabaseConfiguration(super.conf);
+            //graphconfig.getBackend().clearStorage();
+            //final Backend backend = new Backend(graphconfig);
+            //graph = (StandardJanusGraph) JanusGraphFactory.open(graphconfig);
+            graph = (StandardJanusGraph)TestGraphUtil.instance.openGraph(model);
             initializeGraph(graph);
         }
         return graph;
@@ -75,12 +80,12 @@ public abstract class AbstractDynamoDBGraphSpeedTest extends JanusGraphSpeedTest
         return schema;
     }
 
-    @Before
-    public void setUpTest() throws Exception {
-        this.ciHeartbeat.startHeartbeat(this.testName.getMethodName());
+    @BeforeEach
+    public void setUpTest(TestInfo testInfo) throws Exception {
+        this.ciHeartbeat.startHeartbeat(testInfo.getTestMethod().get().getName());
     }
 
-    @After
+    @AfterEach
     public void tearDownTest() throws Exception {
         this.ciHeartbeat.stopHeartbeat();
     }

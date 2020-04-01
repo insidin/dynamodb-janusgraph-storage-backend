@@ -19,11 +19,10 @@ import java.util.Collections;
 import org.janusgraph.diskstorage.BackendException;
 import org.janusgraph.diskstorage.configuration.WriteConfiguration;
 import org.janusgraph.graphdb.JanusGraphPartitionGraphTest;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.rules.TestName;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestInfo;
 
 import com.amazon.janusgraph.TestGraphUtil;
 import com.amazon.janusgraph.diskstorage.dynamodb.BackendDataModel;
@@ -35,38 +34,38 @@ import com.amazon.janusgraph.testutils.CiHeartbeat;
  * @author Johan Jacobs
  *
  */
-public abstract class AbstractDynamoDBPartitionGraphTest extends JanusGraphPartitionGraphTest
-{
-
-    @Rule
-    public final TestName testName = new TestName();
+public abstract class AbstractDynamoDBPartitionGraphTest extends JanusGraphPartitionGraphTest {
 
     private final CiHeartbeat ciHeartbeat;
     protected final BackendDataModel model;
+
     protected AbstractDynamoDBPartitionGraphTest(final BackendDataModel model) {
         this.model = model;
         this.ciHeartbeat = new CiHeartbeat();
     }
 
     @Override
-    public WriteConfiguration getBaseConfiguration()
-    {
+    public WriteConfiguration getBaseConfiguration() {
         return TestGraphUtil.instance.graphConfigWithClusterPartitionsAndExtraStores(model,
             Collections.emptyList(), 8 /*janusGraphClusterPartitions*/);
     }
 
-    @AfterClass
+    @AfterAll
     public static void deleteTables() throws BackendException {
         TestGraphUtil.instance.cleanUpTables();
     }
 
-    @Before
-    public void setUpTest() throws Exception {
-        this.ciHeartbeat.startHeartbeat(this.testName.getMethodName());
+    @Override
+    @BeforeEach
+    public void setUp(TestInfo testInfo) throws Exception {
+        super.setUp(testInfo);
+        this.ciHeartbeat.startHeartbeat(testInfo.getTestMethod().get().getName());
     }
 
-    @After
-    public void tearDownTest() throws Exception {
+    @Override
+    @AfterEach
+    public void tearDown() throws Exception {
         this.ciHeartbeat.stopHeartbeat();
+        super.tearDown();
     }
 }

@@ -23,11 +23,12 @@ import org.janusgraph.diskstorage.KeyColumnValueStoreTest;
 import org.janusgraph.diskstorage.configuration.BasicConfiguration;
 import org.janusgraph.diskstorage.configuration.WriteConfiguration;
 import org.janusgraph.diskstorage.keycolumnvalue.KeyColumnValueStoreManager;
+import org.janusgraph.diskstorage.keycolumnvalue.StoreManager;
 import org.janusgraph.graphdb.configuration.GraphDatabaseConfiguration;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.rules.TestName;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 import com.amazon.janusgraph.TestGraphUtil;
 import com.amazon.janusgraph.testutils.CiHeartbeat;
@@ -40,12 +41,11 @@ import com.amazon.janusgraph.testutils.CiHeartbeat;
  */
 public abstract class AbstractDynamoDbStoreTest extends KeyColumnValueStoreTest
 {
-    @Rule
-    public final TestName testName = new TestName();
-
-    private final int NUM_COLUMNS = 50;
+    //private final int NUM_COLUMNS = 50;
     private final CiHeartbeat ciHeartbeat;
     protected final BackendDataModel model;
+    protected TestInfo testInfo;
+
     protected AbstractDynamoDbStoreTest(final BackendDataModel model) {
         this.model = model;
         this.ciHeartbeat = new CiHeartbeat();
@@ -53,12 +53,14 @@ public abstract class AbstractDynamoDbStoreTest extends KeyColumnValueStoreTest
     @Override
     public KeyColumnValueStoreManager openStorageManager() throws BackendException
     {
-        final List<String> storeNames = Collections.singletonList("testStore1");
+        final List<String> storeNames = Collections.singletonList(super.storeName);
         final WriteConfiguration wc = TestGraphUtil.instance.getStoreConfig(model, storeNames);
 
-        if (name.getMethodName().equals("parallelScanTest")) {
+        if (testInfo.getTestMethod().get().getName().equals("parallelScanTest")) {
             wc.set("storage.dynamodb." + Constants.DYNAMODB_ENABLE_PARALLEL_SCAN.getName(), "true");
         }
+
+        //wc.set("storage.dynamodb." + Constants.);
         final BasicConfiguration config = new BasicConfiguration(GraphDatabaseConfiguration.ROOT_NS, wc,
             BasicConfiguration.Restriction.NONE);
 
@@ -66,21 +68,32 @@ public abstract class AbstractDynamoDbStoreTest extends KeyColumnValueStoreTest
     }
 
     @Override
+    @Test
     public void testConcurrentGetSliceAndMutate() throws ExecutionException, InterruptedException, BackendException {
-        testConcurrentStoreOps(true, NUM_COLUMNS);
+        testConcurrentStoreOps(true);
     }
 
     @Override
+    @Test
     public void testConcurrentGetSlice() throws ExecutionException, InterruptedException, BackendException {
-        testConcurrentStoreOps(false, NUM_COLUMNS);
-    }
-    @Before
-    public void setUp() throws Exception {
-        super.setUp();
-        this.ciHeartbeat.startHeartbeat(this.testName.getMethodName());
+        testConcurrentStoreOps(false);
     }
 
-    @After
+
+    @BeforeEach
+    public void setUp(TestInfo testInfo) throws Exception {
+        this.testInfo = testInfo;
+        this.ciHeartbeat.startHeartbeat(testInfo.getTestMethod().get().getName());
+        super.setUp();
+    }
+
+    @Override
+    public void setUp() throws Exception {
+        // deliberately override with noop to avoid execution of @BeforeEach login of parent class
+    }
+
+    @Override
+    @AfterEach
     public void tearDown() throws Exception {
         TestGraphUtil.instance.cleanUpTables();
         this.ciHeartbeat.stopHeartbeat();

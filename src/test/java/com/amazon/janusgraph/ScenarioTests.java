@@ -15,7 +15,7 @@
 package com.amazon.janusgraph;
 
 import static org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__.inV;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -52,8 +52,6 @@ import org.janusgraph.diskstorage.locking.TemporaryLockingException;
 import org.janusgraph.graphdb.database.StandardJanusGraph;
 import org.janusgraph.graphdb.database.management.ManagementSystem;
 import org.janusgraph.graphdb.transaction.StandardJanusGraphTx;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import com.amazon.janusgraph.diskstorage.dynamodb.BackendDataModel;
 import com.amazon.janusgraph.diskstorage.dynamodb.DynamoDbStoreTransaction;
@@ -65,6 +63,8 @@ import com.opencsv.CSVReader;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 /**
  *
@@ -74,7 +74,7 @@ import lombok.extern.slf4j.Slf4j;
  *
  */
 @Slf4j
-@Category({IsolateRemainingTestsCategory.class})
+@Tag("IsolateRemainingTestsCategory.class")
 public class ScenarioTests {
 
     private static final String LABEL = "myLabel";

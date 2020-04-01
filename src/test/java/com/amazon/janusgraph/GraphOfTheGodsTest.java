@@ -14,9 +14,9 @@
  */
 package com.amazon.janusgraph;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -25,11 +25,10 @@ import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.janusgraph.core.JanusGraph;
 import org.janusgraph.diskstorage.BackendException;
 import org.janusgraph.example.GraphOfTheGodsFactory;
-import org.junit.After;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import com.amazon.janusgraph.graphdb.dynamodb.TestCombination;
 import com.amazon.janusgraph.testcategory.IsolateRemainingTestsCategory;
@@ -40,46 +39,69 @@ import com.amazon.janusgraph.testcategory.IsolateRemainingTestsCategory;
  * @author Alexander Patrikalakis
  *
  */
-@Category({IsolateRemainingTestsCategory.class})
-@RunWith(Parameterized.class)
-public class GraphOfTheGodsTest {
+@Tag("IsolateRemainingTestsCategory.class")
+public abstract class GraphOfTheGodsTest {
     private static final long EDGES = 17;
     private static final long VERTICES = 12;
 
-    private final JanusGraph graph;
+    private JanusGraph graph;
 
-    //TODO
-    @Parameterized.Parameters//(name = "{0}")
     public static Collection<Object[]> data() {
         return TestCombination.NATIVE_LOCKING_CROSS_MODELS;
     }
+
     public GraphOfTheGodsTest(final TestCombination combination) {
         graph = TestGraphUtil.instance.openGraph(combination.getDataModel());
         GraphOfTheGodsFactory.loadWithoutMixedIndex(graph, true);
     }
 
-    @After
+    @AfterEach
     public void tearDownGraph() throws BackendException {
         TestGraphUtil.instance.tearDownGraph(graph);
     }
 
-    @Test
-    public void testQueryByName() throws Exception {
+    @ParameterizedTest
+    @MethodSource({"data"})
+    public void testQueryByName(TestCombination combination) throws Exception {
+        init(combination);
         final Iterator<Vertex> results = graph.traversal().V().has("name", "jupiter");
-        assertTrue("Query should return a result", results.hasNext());
+        assertTrue(results.hasNext(), "Query should return a result");
         final Vertex jupiter = results.next();
-        assertNotNull("Query result should be non null", jupiter);
+        assertNotNull(jupiter, "Query result should be non null");
     }
 
-    @Test
-    public void testQueryAllVertices() throws Exception {
-        assertEquals("Expected the correct number of VERTICES",
-            VERTICES, graph.traversal().V().count().tryNext().get().longValue());
+    @ParameterizedTest
+    @MethodSource({"data"})
+    public void testQueryAllVertices(TestCombination combination) throws Exception {
+        init(combination);
+        assertEquals(VERTICES, graph.traversal().V().count().tryNext().get().longValue(), "Expected the correct number of VERTICES");
     }
 
-    @Test
-    public void testQueryAllEdges() throws Exception {
-        assertEquals("Expected the correct number of EDGES",
-            EDGES, graph.traversal().E().count().tryNext().get().longValue());
+    @ParameterizedTest
+    @MethodSource({"data"})
+    public void testQueryAllEdges(TestCombination combination) throws Exception {
+        init(combination);
+        assertEquals(EDGES, graph.traversal().E().count().tryNext().get().longValue(), "Expected the correct number of EDGES");
     }
+
+    private void init(TestCombination combination) {
+        graph = TestGraphUtil.instance.openGraph(combination.getDataModel());
+        GraphOfTheGodsFactory.loadWithoutMixedIndex(graph, true);
+    }
+
+/*
+    public static class SingleGraphOfTheGodsTest extends GraphOfTheGodsTest {
+
+        public SingleGraphOfTheGodsTest() {
+            super(SINGLE_ITEM_DYNAMODB_LOCKING);
+        }
+    }
+
+    public static class MultiGraphOfTheGodsTest extends GraphOfTheGodsTest {
+
+        public MultiGraphOfTheGodsTest() {
+            super(MULTIPLE_ITEM_DYNAMODB_LOCKING);
+        }
+    }
+*/
 }

@@ -14,10 +14,9 @@
  */
 package com.amazon.janusgraph;
 
-import org.junit.AfterClass;
-import org.junit.Test;
-
 import com.amazon.janusgraph.diskstorage.dynamodb.Client;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Test;
 
 /**
  *
@@ -32,7 +31,7 @@ public class ClientTest {
         client.getDelegate().shutdown();
     }
 
-    @AfterClass
+    @AfterAll
     public static void cleanUpTables() throws Exception {
         TestGraphUtil.instance.cleanUpTables();
     }

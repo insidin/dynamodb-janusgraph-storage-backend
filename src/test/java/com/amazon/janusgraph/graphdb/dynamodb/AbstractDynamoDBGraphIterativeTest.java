@@ -20,17 +20,16 @@ import org.janusgraph.diskstorage.configuration.WriteConfiguration;
 import org.janusgraph.diskstorage.keycolumnvalue.KeyColumnValueStoreManager;
 import org.janusgraph.graphdb.JanusGraphIterativeBenchmark;
 import org.janusgraph.graphdb.configuration.GraphDatabaseConfiguration;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.rules.TestName;
 
 import com.amazon.janusgraph.TestGraphUtil;
 import com.amazon.janusgraph.diskstorage.dynamodb.BackendDataModel;
 import com.amazon.janusgraph.diskstorage.dynamodb.DynamoDBStoreManager;
 import com.amazon.janusgraph.testutils.CiHeartbeat;
 import com.google.common.annotations.VisibleForTesting;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestInfo;
 
 /**
  *
@@ -39,11 +38,10 @@ import com.google.common.annotations.VisibleForTesting;
  */
 public abstract class AbstractDynamoDBGraphIterativeTest extends JanusGraphIterativeBenchmark {
 
-    @Rule
-    public final TestName testName = new TestName();
-
     private final CiHeartbeat ciHeartbeat;
     protected final BackendDataModel model;
+    protected TestInfo testInfo;
+
     @VisibleForTesting
     protected AbstractDynamoDBGraphIterativeTest(final BackendDataModel model) {
         this.model = model;
@@ -65,18 +63,21 @@ public abstract class AbstractDynamoDBGraphIterativeTest extends JanusGraphItera
         return TestGraphUtil.instance.graphConfig(model);
     }
 
-    @AfterClass
+    @AfterAll
     public static void deleteTables() throws BackendException {
         TestGraphUtil.instance.cleanUpTables();
     }
 
-    @Before
-    public void setUpTest() throws Exception {
-        this.ciHeartbeat.startHeartbeat(this.testName.getMethodName());
+    @BeforeEach
+    public void setUpTest(TestInfo testInfo) throws Exception {
+        super.setUp(testInfo);
+        this.testInfo = testInfo;
+        this.ciHeartbeat.startHeartbeat(testInfo.getTestMethod().get().getName());
     }
 
-    @After
+    @AfterEach
     public void tearDownTest() throws Exception {
         this.ciHeartbeat.stopHeartbeat();
+        super.tearDown();
     }
 }

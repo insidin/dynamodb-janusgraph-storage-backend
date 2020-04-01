@@ -14,11 +14,11 @@
  */
 package com.google.common.util.concurrent;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.TimeUnit;
 
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  *

@@ -15,17 +15,19 @@
 package com.amazon.janusgraph.graphdb.dynamodb;
 
 import org.janusgraph.diskstorage.BackendException;
-import org.junit.experimental.categories.Category;
 
 import com.amazon.janusgraph.diskstorage.dynamodb.BackendDataModel;
 import com.amazon.janusgraph.testcategory.SingleItemTestCategory;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
 
 /**
 *
 * @author Alexander Patrikalakis
 *
 */
-@Category({ SingleItemTestCategory.class })
+@Tag("SingleItemTestCategory.class")
+@Disabled
 public class SingleDynamoDBGraphSpeedTest extends AbstractDynamoDBGraphSpeedTest {
 
     public SingleDynamoDBGraphSpeedTest() throws BackendException {

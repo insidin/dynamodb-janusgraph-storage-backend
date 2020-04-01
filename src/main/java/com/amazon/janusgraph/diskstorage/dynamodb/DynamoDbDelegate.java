@@ -144,6 +144,7 @@ public class DynamoDbDelegate  {
     private static final long CONTROL_PLANE_RETRY_DELAY_MS = 1000;
     private static final String LIST_TABLES = "ListTables";
     public static final int BATCH_WRITE_MAX_NUMBER_OF_ITEMS = 25;
+    public static final long TIMEOUT = 60L;
 
     private final AmazonDynamoDB client;
     private final ThreadPoolExecutor clientThreadPool;
@@ -873,10 +874,17 @@ public class DynamoDbDelegate  {
     }
 
     public void shutdown() {
-        MetricManager.INSTANCE.getRegistry().remove(executorGaugeName);
-        // TODO(amcp) figure out a way to make the thread pool not be static
-        // https://github.com/awslabs/dynamodb-titan-storage-backend/issues/48
+        clientThreadPool.shutdown();
+        try {
+            if (!clientThreadPool.awaitTermination(TIMEOUT, TimeUnit.SECONDS)) {
+                clientThreadPool.shutdownNow();
+            }
+        } catch (InterruptedException ex) {
+            clientThreadPool.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
         client.shutdown();
+        MetricManager.INSTANCE.getRegistry().remove(executorGaugeName);
     }
 
     private Timer getTimer(final String apiName, final String tableName) {

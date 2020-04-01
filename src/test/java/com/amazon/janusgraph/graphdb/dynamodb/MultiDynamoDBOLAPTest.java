@@ -15,30 +15,33 @@
 package com.amazon.janusgraph.graphdb.dynamodb;
 
 import org.janusgraph.diskstorage.BackendException;
-import org.junit.Ignore;
-import org.junit.experimental.categories.Category;
 
 import com.amazon.janusgraph.diskstorage.dynamodb.BackendDataModel;
 import com.amazon.janusgraph.testcategory.MultiDynamoDBOLAPTestCategory;
 import com.amazon.janusgraph.testcategory.MultipleItemTestCategory;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
 
 /**
 *
 * @author Alexander Patrikalakis
 *
 */
-@Category({ MultiDynamoDBOLAPTestCategory.class, MultipleItemTestCategory.class })
+@Tag("MultiDynamoDBOLAPTestCategory.class")
+@Tag("MultipleItemTestCategory.class")
 public class MultiDynamoDBOLAPTest extends AbstractDynamoDBOLAPTest {
 
     public MultiDynamoDBOLAPTest() throws BackendException {
         super(BackendDataModel.MULTI);
     }
 
-    @Override @Ignore
+    @Override
+    @Disabled
     public void testPageRank() {
     }
 
-    @Override @Ignore
+    @Override
+    @Disabled
     public void testShortestDistance() {
     }
 }

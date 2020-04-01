@@ -16,16 +16,17 @@ package com.amazon.janusgraph.diskstorage.dynamodb;
 
 import java.util.Collections;
 
+import org.apache.commons.configuration.Configuration;
 import org.janusgraph.diskstorage.BackendException;
 import org.janusgraph.diskstorage.IDAuthorityTest;
 import org.janusgraph.diskstorage.configuration.BasicConfiguration;
 import org.janusgraph.diskstorage.configuration.WriteConfiguration;
 import org.janusgraph.diskstorage.keycolumnvalue.KeyColumnValueStoreManager;
 import org.janusgraph.graphdb.configuration.GraphDatabaseConfiguration;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.rules.TestName;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestInfo;
 
 import com.amazon.janusgraph.TestGraphUtil;
 import com.amazon.janusgraph.testutils.CiHeartbeat;
@@ -38,34 +39,39 @@ import com.amazon.janusgraph.testutils.CiHeartbeat;
  */
 public abstract class AbstractDynamoDBIDAuthorityTest extends IDAuthorityTest {
 
-    @Rule
-    public final TestName testName = new TestName();
-
     private final CiHeartbeat ciHeartbeat;
-
+    protected TestInfo testInfo;
     protected final BackendDataModel model;
-    protected AbstractDynamoDBIDAuthorityTest(final WriteConfiguration baseConfig,
-            final BackendDataModel model) {
-        super(TestGraphUtil.instance.appendStoreConfig(model, baseConfig.copy(), Collections.singletonList("ids")));
+
+    protected AbstractDynamoDBIDAuthorityTest(/*final WriteConfiguration baseConfig,*/ final BackendDataModel model) {
+        super();//TestGraphUtil.instance.appendStoreConfig(model, baseConfig.copy(), Collections.singletonList("ids")));
         this.model = model;
         this.ciHeartbeat = new CiHeartbeat();
     }
     
     @Override
     public KeyColumnValueStoreManager openStorageManager() throws BackendException {
-        final BasicConfiguration config = new BasicConfiguration(GraphDatabaseConfiguration.ROOT_NS, super.baseStoreConfiguration,
-            BasicConfiguration.Restriction.NONE);
+        WriteConfiguration ids = TestGraphUtil.instance.getStoreConfig(model, Collections.singletonList("ids"));
+        final BasicConfiguration config = new BasicConfiguration(GraphDatabaseConfiguration.ROOT_NS, ids, BasicConfiguration.Restriction.NONE);
         return new DynamoDBStoreManager(config);
     }
 
-    @Before
-    public void setUpTest() throws Exception {
-        this.ciHeartbeat.startHeartbeat(this.testName.getMethodName());
+    @BeforeEach
+    public void setUpTest(TestInfo testInfo) throws Exception {
+        this.testInfo = testInfo;
+        this.ciHeartbeat.startHeartbeat(testInfo.getTestMethod().get().getName());
     }
 
-    @After
-    public void tearDownTest() throws Exception {
-        TestGraphUtil.instance.cleanUpTables();
+    @Override
+    @AfterEach
+    public void tearDown() throws Exception {
         this.ciHeartbeat.stopHeartbeat();
+        super.tearDown();
     }
+
+    @AfterAll
+    public static void deleteTables() throws BackendException {
+        TestGraphUtil.instance.cleanUpTables();
+    }
+
 }

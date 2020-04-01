@@ -23,12 +23,7 @@ import org.janusgraph.diskstorage.configuration.BasicConfiguration;
 import org.janusgraph.diskstorage.configuration.WriteConfiguration;
 import org.janusgraph.diskstorage.keycolumnvalue.KeyColumnValueStoreManager;
 import org.janusgraph.graphdb.configuration.GraphDatabaseConfiguration;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestName;
+import org.junit.jupiter.api.*;
 
 import com.amazon.janusgraph.TestGraphUtil;
 import com.amazon.janusgraph.testutils.CiHeartbeat;
@@ -41,11 +36,10 @@ import com.amazon.janusgraph.testutils.CiHeartbeat;
  */
 public abstract class AbstractDynamoDBMultiWriteStoreTest extends MultiWriteKeyColumnValueStoreTest {
 
-    @Rule
-    public final TestName testName = new TestName();
-
     private final CiHeartbeat ciHeartbeat;
     protected final BackendDataModel model;
+    protected TestInfo testInfo;
+
     protected AbstractDynamoDBMultiWriteStoreTest(final BackendDataModel model) {
         this.model = model;
         this.ciHeartbeat = new CiHeartbeat();
@@ -62,18 +56,25 @@ public abstract class AbstractDynamoDBMultiWriteStoreTest extends MultiWriteKeyC
         return new DynamoDBStoreManager(config);
     }
 
-    @AfterClass
+    @AfterAll
     public static void cleanUpTables() throws Exception {
         TestGraphUtil.instance.cleanUpTables();
     }
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    public void setUp(TestInfo testInfo) throws Exception {
+        this.testInfo = testInfo;
+        this.ciHeartbeat.startHeartbeat(testInfo.getTestMethod().get().getName());
         super.setUp();
-        this.ciHeartbeat.startHeartbeat(this.testName.getMethodName());
     }
 
-    @After
+    @Override
+    public void setUp() {
+        // deliberately override with noop to avoid execution of @BeforeEach login of parent class
+    }
+
+    @Override
+    @AfterEach
     public void tearDown() throws Exception {
         this.ciHeartbeat.stopHeartbeat();
         super.tearDown();
@@ -82,6 +83,6 @@ public abstract class AbstractDynamoDBMultiWriteStoreTest extends MultiWriteKeyC
     @Override
     @Test
     public void mutateManyStressTest() throws BackendException {
-        this.mutateManyStressTestWithVariableRounds(1);
+        this.mutateManyStressTestWithVariableRounds();
     }
 }

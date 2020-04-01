@@ -17,15 +17,14 @@ package com.amazon.janusgraph.graphdb.dynamodb;
 import org.janusgraph.diskstorage.BackendException;
 import org.janusgraph.diskstorage.configuration.WriteConfiguration;
 import org.janusgraph.olap.OLAPTest;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.rules.TestName;
 
 import com.amazon.janusgraph.TestGraphUtil;
 import com.amazon.janusgraph.diskstorage.dynamodb.BackendDataModel;
 import com.amazon.janusgraph.testutils.CiHeartbeat;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestInfo;
 
 /**
  *
@@ -35,11 +34,9 @@ import com.amazon.janusgraph.testutils.CiHeartbeat;
  */
 public abstract class AbstractDynamoDBOLAPTest extends OLAPTest {
 
-    @Rule
-    public final TestName testName = new TestName();
-
     private final CiHeartbeat ciHeartbeat;
     protected final BackendDataModel model;
+
     protected AbstractDynamoDBOLAPTest(final BackendDataModel model) {
         this.model = model;
         this.ciHeartbeat = new CiHeartbeat();
@@ -51,18 +48,22 @@ public abstract class AbstractDynamoDBOLAPTest extends OLAPTest {
         return TestGraphUtil.instance.graphConfig(model);
     }
 
-    @AfterClass
+    @AfterAll
     public static void deleteTables() throws BackendException {
         TestGraphUtil.instance.cleanUpTables();
     }
 
-    @Before
-    public void setUpTest() throws Exception {
-        this.ciHeartbeat.startHeartbeat(this.testName.getMethodName());
+    @Override
+    @BeforeEach
+    public void setUp(TestInfo testInfo) throws Exception {
+        super.setUp(testInfo);
+        this.ciHeartbeat.startHeartbeat(testInfo.getTestMethod().get().getName());
     }
 
-    @After
-    public void tearDownTest() throws Exception {
+    @Override
+    @AfterEach
+    public void tearDown() throws Exception {
+        super.tearDown();
         this.ciHeartbeat.stopHeartbeat();
     }
 }

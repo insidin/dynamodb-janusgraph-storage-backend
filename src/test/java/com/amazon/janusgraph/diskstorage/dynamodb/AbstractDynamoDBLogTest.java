@@ -23,9 +23,9 @@ import org.janusgraph.diskstorage.configuration.WriteConfiguration;
 import org.janusgraph.diskstorage.keycolumnvalue.KeyColumnValueStoreManager;
 import org.janusgraph.diskstorage.log.KCVSLogTest;
 import org.janusgraph.graphdb.configuration.GraphDatabaseConfiguration;
-import org.junit.AfterClass;
 
 import com.amazon.janusgraph.TestGraphUtil;
+import org.junit.jupiter.api.AfterAll;
 
 /**
  *
@@ -35,6 +35,7 @@ import com.amazon.janusgraph.TestGraphUtil;
 public abstract class AbstractDynamoDBLogTest extends KCVSLogTest {
 
     protected final BackendDataModel model;
+
     protected AbstractDynamoDBLogTest(final BackendDataModel model) {
         this.model = model;
     }
@@ -60,7 +61,7 @@ public abstract class AbstractDynamoDBLogTest extends KCVSLogTest {
         return new DynamoDBStoreManager(config);
     }
 
-    @AfterClass
+    @AfterAll
     public static void cleanUpTables() throws Exception {
         TestGraphUtil.instance.cleanUpTables();
     }

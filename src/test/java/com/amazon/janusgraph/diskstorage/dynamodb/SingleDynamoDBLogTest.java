@@ -14,17 +14,17 @@
  */
 package com.amazon.janusgraph.diskstorage.dynamodb;
 
-import org.junit.experimental.categories.Category;
-
 import com.amazon.janusgraph.testcategory.SingleIdAuthorityLogStoreCategory;
 import com.amazon.janusgraph.testcategory.SingleItemTestCategory;
+import org.junit.jupiter.api.Tag;
 
 /**
 *
 * @author Alexander Patrikalakis
 *
 */
-@Category({ SingleIdAuthorityLogStoreCategory.class, SingleItemTestCategory.class })
+@Tag("SingleIdAuthorityLogStoreCategory.class")
+@Tag("SingleItemTestCategory.class")
 public class SingleDynamoDBLogTest extends AbstractDynamoDBLogTest {
 
     public SingleDynamoDBLogTest() {
