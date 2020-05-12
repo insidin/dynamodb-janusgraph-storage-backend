@@ -1,8 +1,5 @@
 name: Build & publish dynamodb-janusgraph-storage-backend
-on:
-  push:
-    branches:
-    - ${GITHUB_REF##*/}
+on: push
 jobs:
   build:
     runs-on: ubuntu-latest

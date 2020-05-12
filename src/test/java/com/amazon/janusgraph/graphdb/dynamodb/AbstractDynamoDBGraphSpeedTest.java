@@ -14,25 +14,15 @@
  */
 package com.amazon.janusgraph.graphdb.dynamodb;
 
-import org.janusgraph.core.JanusGraphFactory;
 import org.janusgraph.diskstorage.BackendException;
-import org.janusgraph.diskstorage.configuration.BasicConfiguration;
-import org.janusgraph.diskstorage.configuration.ModifiableConfiguration;
-import org.janusgraph.diskstorage.configuration.WriteConfiguration;
 import org.janusgraph.graphdb.JanusGraphSpeedTest;
 import org.janusgraph.graphdb.SpeedTestSchema;
-import org.janusgraph.graphdb.configuration.GraphDatabaseConfiguration;
-import org.janusgraph.graphdb.configuration.builder.GraphDatabaseConfigurationBuilder;
 import org.janusgraph.graphdb.database.StandardJanusGraph;
 
 import com.amazon.janusgraph.TestGraphUtil;
 import com.amazon.janusgraph.diskstorage.dynamodb.BackendDataModel;
 import com.amazon.janusgraph.testutils.CiHeartbeat;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.TestInfo;
-//import org.junit.rules.TestName;
+import org.junit.jupiter.api.*;
 
 /**
  *
