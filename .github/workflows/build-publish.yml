@@ -8,8 +8,8 @@ jobs:
       run: echo "${GITHUB_REF##*/}"
     - name: Checkout branch
       uses: actions/checkout@v2
-      with:
-        ref: ${GITHUB_REF##*/}
+#      with:
+#        ref: ${GITHUB_REF##*/}
     - name: Setup Java8
       uses: actions/setup-java@v1
       with:
